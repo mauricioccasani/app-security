@@ -15,8 +15,8 @@ public class SecurityExceptionHandler {
     public ResponseEntity<GenericResponse> tareaException(SecurityException exs) {
         boolean exiteError = StringUtils.hasText(exs.getMessage());
         if (exiteError) {
-            return ResponseEntity.status(exs.getStatus()).body(new GenericResponse(exs.getMessage()));
+            return ResponseEntity.status(exs.getStatus()).body(new GenericResponse("999",exs.getMessage()));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new GenericResponse(INTENTAR_MAS_TARDE));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new GenericResponse("999",INTENTAR_MAS_TARDE));
     }
 }

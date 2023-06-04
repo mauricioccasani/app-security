@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import pe.com.ccasani.appsecurity.security.athentication.CustomAuthenticationEntryPoint;
 import pe.com.ccasani.appsecurity.security.athentication.CustomAuthenticationProvider;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -18,14 +18,13 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 @Configuration
 public class SecurityFilter {
-    @Bean
-    BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+
 
     private final CustomAuthenticationProvider authenticationProvider;
 
-    private  AuthenticationManager authenticationManager(){
+    private final CustomAuthenticationEntryPoint authEntryPoint;
+
+    private AuthenticationManager authenticationManager() {
         return new ProviderManager(this.authenticationProvider);
     }
 
@@ -37,10 +36,13 @@ public class SecurityFilter {
         );
         http.authorizeHttpRequests(authz -> authz
                         .requestMatchers("/usuarios/**").hasRole("USER")
-                        .requestMatchers("/admin/**").hasAnyRole("ADMIN","USER")
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "USER")
                         .anyRequest()
                         .authenticated())
-                .httpBasic(withDefaults());
+
+                .httpBasic(withDefaults()
+                )
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(this.authEntryPoint));
         http.addFilter(new BasicAuthenticationFilter(this.authenticationManager()));
         return http.build();
     }
