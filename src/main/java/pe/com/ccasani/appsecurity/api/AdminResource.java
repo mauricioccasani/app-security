@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/clientes")
-public class ClienteResource {
+@RequestMapping("/admin")
+public class AdminResource {
     @GetMapping
-    public ResponseEntity<String> getCliente() {
-        return ResponseEntity.ok().body("Cliente");
+    public ResponseEntity<String> getAdmin() {
+        return ResponseEntity.ok().body("admin");
     }
 }

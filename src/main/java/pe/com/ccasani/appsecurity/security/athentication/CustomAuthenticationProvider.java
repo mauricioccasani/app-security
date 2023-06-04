@@ -1,18 +1,21 @@
 package pe.com.ccasani.appsecurity.security.athentication;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
+
+    private final UserDetailsService userDetailsService;
 
     @Override
     public Authentication authenticate(Authentication authentication) {
@@ -20,15 +23,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        log.info(String.format("username %s", username));
-        log.info("password {}", password);
 
-        UserDetails userDetails = isValidUser(username, password);
+        UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-        if (userDetails != null) {
+        if (userDetails != null && userDetails.getPassword().equals(password)) {
             return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
         } else {
-            throw new BadCredentialsException("Usuarion incorrecto");
+            throw new BadCredentialsException("Usuario incorrecto");
         }
     }
 
@@ -37,19 +38,5 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         return authenticationType.equals(UsernamePasswordAuthenticationToken.class);
     }
 
-    private UserDetails isValidUser(String username, String password) {
 
-        if (username.equalsIgnoreCase("user") && password.equals("abc")) {
-            log.info("User");
-            UserDetails user = User.withUsername(username).password("abc").roles("USER").build();
-            return user;
-        }
-        if (username.equalsIgnoreCase("admin") && password.equals("abc")) {
-            log.info("Admin");
-            UserDetails user = User.withUsername(username).password("abc").roles("ADMIN").build();
-            return user;
-        }
-
-        return null;
-    }
 }

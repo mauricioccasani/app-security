@@ -7,10 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import pe.com.ccasani.appsecurity.security.athentication.CustomAuthenticationProvider;
@@ -20,7 +17,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Slf4j
 @RequiredArgsConstructor
 @Configuration
-public class SecurityConfiguration {
+public class SecurityFilter {
     @Bean
     BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
@@ -39,8 +36,8 @@ public class SecurityConfiguration {
                 authz -> authz.requestMatchers("/home/**").permitAll()
         );
         http.authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/usuarios/**").hasRole("ADMIN")
-                        .requestMatchers("/clientes/**").hasRole("USER")
+                        .requestMatchers("/usuarios/**").hasRole("USER")
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN","USER")
                         .anyRequest()
                         .authenticated())
                 .httpBasic(withDefaults());

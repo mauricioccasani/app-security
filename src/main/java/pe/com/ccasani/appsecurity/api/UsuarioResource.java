@@ -11,6 +11,6 @@ public class UsuarioResource {
 
     @GetMapping
     public ResponseEntity<String> test() {
-        return ResponseEntity.ok().body("Ok");
+        return ResponseEntity.ok().body("user");
     }
 }
