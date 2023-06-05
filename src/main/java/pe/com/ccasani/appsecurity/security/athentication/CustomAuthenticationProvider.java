@@ -30,7 +30,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
         log.info("matches: {}", bCryptPasswordEncoder.matches(password, userDetails.getPassword()));
-        if (!Objects.isNull(userDetails)|| bCryptPasswordEncoder.matches(password, userDetails.getPassword())) {
+        if (bCryptPasswordEncoder.matches(password, userDetails.getPassword())) {
             return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
         } else {
             throw new BadCredentialsException("Usuario incorrecto");

@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import pe.com.ccasani.appsecurity.security.athentication.CustomAuthenticationEntryPoint;
-import pe.com.ccasani.appsecurity.security.athentication.CustomAuthenticationProvider;
+import pe.com.ccasani.appsecurity.security.service.UserDetailsServiceImpl;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -20,13 +19,11 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityFilter {
 
 
-    private final CustomAuthenticationProvider authenticationProvider;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserDetailsServiceImpl userDetailsService;
 
     private final CustomAuthenticationEntryPoint authEntryPoint;
 
-    private AuthenticationManager authenticationManager() {
-        return new ProviderManager(this.authenticationProvider);
-    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -42,9 +39,16 @@ public class SecurityFilter {
                 .httpBasic(withDefaults()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(this.authEntryPoint));
-        http.addFilter(new BasicAuthenticationFilter(this.authenticationManager()));
+        http.authenticationProvider(this.daoAuthenticationProvider());
         return http.build();
     }
 
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(this.userDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(this.bCryptPasswordEncoder);
+        return daoAuthenticationProvider;
+    }
 
 }
