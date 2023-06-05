@@ -8,7 +8,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private final UserDetailsService userDetailsService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) {
@@ -25,8 +29,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
 
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-
-        if (userDetails != null && userDetails.getPassword().equals(password)) {
+        log.info("matches: {}", bCryptPasswordEncoder.matches(password, userDetails.getPassword()));
+        if (!Objects.isNull(userDetails)|| bCryptPasswordEncoder.matches(password, userDetails.getPassword())) {
             return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
         } else {
             throw new BadCredentialsException("Usuario incorrecto");

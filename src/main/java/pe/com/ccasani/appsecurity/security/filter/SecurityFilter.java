@@ -39,7 +39,6 @@ public class SecurityFilter {
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "USER")
                         .anyRequest()
                         .authenticated())
-
                 .httpBasic(withDefaults()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(this.authEntryPoint));
